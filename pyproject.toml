@@ -80,6 +80,7 @@ llama-index-embeddings-azure-openai = "*"
 llama-index-embeddings-ollama = "*"
 voyageai = "*"
 llama-index-embeddings-voyageai = "*"
+uvicorn = "0.34.0"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "0.8.5"

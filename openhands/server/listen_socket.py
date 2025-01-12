@@ -17,7 +17,7 @@ from openhands.events.stream import AsyncEventStreamWrapper
 from openhands.server.routes.settings import ConversationStoreImpl, SettingsStoreImpl
 from openhands.server.session.manager import ConversationDoesNotExistError
 from openhands.server.shared import config, openhands_config, session_manager, sio
-from openhands.server.types import AppMode
+from openhands.server.app_types import AppMode
 from openhands.utils.async_utils import call_sync_from_async
 
 

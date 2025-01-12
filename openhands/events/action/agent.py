@@ -78,3 +78,14 @@ class AgentDelegateAction(Action):
     @property
     def message(self) -> str:
         return f"I'm asking {self.agent} for help with this task."
+
+
+@dataclass
+class AgentDelegateCompletedAction(Action):
+    outputs: dict = field(default_factory=dict)
+    thought: str = ''
+    action: str = ActionType.DELEGATE_COMPLETED
+
+    @property
+    def message(self) -> str:
+        return f"I've completed my task, returning to the parent agent."

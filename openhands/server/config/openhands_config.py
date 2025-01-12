@@ -3,7 +3,7 @@ import os
 from fastapi import HTTPException
 
 from openhands.core.logger import openhands_logger as logger
-from openhands.server.types import AppMode, OpenhandsConfigInterface
+from openhands.server.app_types import AppMode, OpenhandsConfigInterface
 from openhands.utils.import_utils import get_impl
 
 

@@ -48,6 +48,9 @@ class ActionTypeSchema(BaseModel):
     """Delegates a task to another agent.
     """
 
+    DELEGATE_COMPLETED: str = Field(default='delegate_completed')
+    """Return to the parent agent after completing the delegated task."""
+
     FINISH: str = Field(default='finish')
     """If you're absolutely certain that you've completed your task and have tested your work,
     use the finish action to stop working.

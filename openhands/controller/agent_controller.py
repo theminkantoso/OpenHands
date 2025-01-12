@@ -39,6 +39,7 @@ from openhands.events.action import (
     MessageAction,
     NullAction,
 )
+from openhands.events.action.agent import AgentDelegateCompletedAction
 from openhands.events.event import Event
 from openhands.events.observation import (
     AgentDelegateObservation,
@@ -229,6 +230,8 @@ class AgentController:
         if isinstance(event, Action):
             if isinstance(event, MessageAction) and event.source == EventSource.USER:
                 return True
+            if isinstance(event, AgentDelegateAction):
+                return True
             return False
         if isinstance(event, Observation):
             if isinstance(event, NullObservation) or isinstance(
@@ -274,7 +277,10 @@ class AgentController:
             await self._handle_message_action(action)
         elif isinstance(action, AgentDelegateAction):
             await self.start_delegate(action)
-
+        elif isinstance(action, AgentDelegateCompletedAction):
+            await self.set_agent_state_to(AgentState.FINISHED)
+            await self.complete_delegate(action)
+        # TODO: Implement return to parent agent
         elif isinstance(action, AgentFinishAction):
             self.state.outputs = action.outputs
             self.state.metrics.merge(self.state.local_metrics)
@@ -504,7 +510,17 @@ class AgentController:
             is_delegate=True,
             headless_mode=self.headless_mode,
         )
+        self.delegate.parent = self
         await self.delegate.set_agent_state_to(AgentState.RUNNING)
+
+    async def complete_delegate(self, action: AgentDelegateCompletedAction) -> None:
+        self.log(
+            'debug',
+            f'completed delegate, returning to agent {self.parent.agent.name}',
+        )
+        self.event_stream.unsubscribe(EventStreamSubscriber.AGENT_CONTROLLER, self.id)
+        await self.parent.set_agent_state_to(AgentState.RUNNING)
+        await self.parent._step()
 
     async def _step(self) -> None:
         """Executes a single step of the parent or delegate agent. Detects stuck agents and limits on the number of iterations and the task budget."""

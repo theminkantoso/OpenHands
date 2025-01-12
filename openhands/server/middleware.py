@@ -11,7 +11,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
 
 from openhands.server.shared import session_manager
-from openhands.server.types import SessionMiddlewareInterface
+from openhands.server.app_types import SessionMiddlewareInterface
 
 
 class LocalhostCORSMiddleware(CORSMiddleware):
