@@ -230,6 +230,7 @@ class AgentController:
         if isinstance(event, Action):
             if isinstance(event, MessageAction) and event.source == EventSource.USER:
                 return True
+            # if isinstance(event, AgentDelegateAction) or isinstance(event, AgentDelegateCompletedAction):
             if isinstance(event, AgentDelegateAction):
                 return True
             return False
@@ -518,8 +519,32 @@ class AgentController:
             'debug',
             f'completed delegate, returning to agent {self.parent.agent.name}',
         )
-        self.event_stream.unsubscribe(EventStreamSubscriber.AGENT_CONTROLLER, self.id)
-        await self.parent.set_agent_state_to(AgentState.RUNNING)
+
+        # retrieve delegate result
+        outputs = self.state.outputs if self.state else {}
+
+        # update iteration that shall be shared across agents
+        self.parent.state.iteration = self.state.iteration
+
+        # resubscribe parent when delegate is finished
+        self.event_stream.subscribe(
+            EventStreamSubscriber.AGENT_CONTROLLER, self.on_event, self.parent.id
+        )
+
+        # update delegate result observation
+        # TODO: replace this with AI-generated summary (#2395)
+        formatted_output = ', '.join(
+            f'{key}: {value}' for key, value in outputs.items()
+        )
+        content = f'{self.agent.name} finishes task with {formatted_output}'
+
+        obs = AgentDelegateObservation(outputs=outputs, content=content)
+
+        self.event_stream.add_event(obs, EventSource.AGENT)
+
+        # close delegate controller: we must close the delegate controller before adding new events
+        await self.close()
+        self.parent.delegate = None
         await self.parent._step()
 
     async def _step(self) -> None:

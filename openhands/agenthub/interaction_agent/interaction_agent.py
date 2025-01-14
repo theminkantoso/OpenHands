@@ -26,7 +26,6 @@ from openhands.events.observation import (
     NullObservation,
     Observation,
 )
-from openhands.events.serialization.event import event_to_dict
 from openhands.llm.llm import LLM
 
 ActionObs = TypedDict(
@@ -115,12 +114,7 @@ class InteractionAgent(Agent):
 
     def step(self, state: State) -> Action:
         # if we're done, go back
-        if state.local_iteration <=3:
-            return MessageAction(f"Hello, World! {state.local_iteration}")
+        if state.local_iteration <= 2:
+            return MessageAction(f'Hello, World! {state.local_iteration}')
         else:
             return AgentDelegateCompletedAction()
-
-
-
-
-
